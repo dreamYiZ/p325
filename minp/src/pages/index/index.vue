@@ -1,18 +1,13 @@
 <template>
 	<view class="index page home" v-if="kinds && goods && kinds.length">
 		<view class="menu">
-			<scroll-view
-				:scroll-y="true"
-				style="height: 100%"
-				@scroll="scrollMenu"
-				:scroll-into-view="toView"
-				:scroll-top="scrollTop"
-			>
+			<scroll-view :scroll-y="true" style="height: 100%" @scroll="scrollMenu">
 				<view
 					class="menu-item"
+					:class="{ 'active-menu-item': activeKind === item }"
 					v-for="(item, index) in kinds"
 					:key="index"
-					@click="() => onClickMenu(item)"
+					:onTap="() => onClickMenu(item)"
 				>
 					{{ item }}
 				</view>
@@ -23,11 +18,16 @@
 				:scroll-y="true"
 				style="height: 100%"
 				@scroll="scrollGoods"
-				:scroll-into-view="toView"
-				:scroll-top="scrollTop"
 				:scrollIntoView="toScrollViewId"
+				:scrollWithAnimation="true"
+				:enhanced="true"
 			>
-				<view v-for="(item, index) in goods" :key="index" :id="item.kinds" class="good">
+				<view
+					v-for="(item, index) in goods"
+					:key="index"
+					:id="`scrollid${item.id}`"
+					class="good"
+				>
 					<image
 						class="good-img"
 						style="width: 65px; height: 65px; background: #fff"
@@ -39,6 +39,8 @@
 						<view class="price">{{ item.price }}</view>
 					</view>
 				</view>
+				<view class="padding-space"></view>
+				<view class="reach2bottom">~~~ 到底了 ~~~</view>
 			</scroll-view>
 		</view>
 	</view>
@@ -48,20 +50,41 @@
 import { onMounted, ref } from "vue";
 import "./index.less";
 
+const GOOD_DIV_HEIGHT = "70";
 const goods = ref();
 const kinds = ref();
 const toScrollViewId = ref();
+const kindsTopArray = ref();
+const activeKind = ref();
 
 const scrollMenu = (e) => {
 	console.log("scroll menu", e);
 };
 
 const scrollGoods = (e) => {
-	console.log("scroll goods", e);
+	const scrollTop = e.detail.scrollTop;
+
+	let n = 0;
+	let totalTop = 0;
+	while (true) {
+		if (kinds.value[n]) {
+			if (scrollTop > totalTop + kindsTopArray.value[n]) {
+				totalTop += kindsTopArray.value[n];
+				n++;
+			} else {
+				break;
+			}
+		}
+		break;
+	}
+	activeKind.value = kinds.value[n];
 };
 
 const onClickMenu = (e) => {
 	console.log("onClickMenu", e);
+	let scrollToElId = goods.value.find((good) => good.kind === e).id;
+	toScrollViewId.value = `scrollid${scrollToElId}`;
+	activeKind.value = e;
 };
 
 onMounted(() => {
@@ -153,5 +176,9 @@ onMounted(() => {
 	}
 
 	kinds.value = [...new Set(goods.value.map((item) => item.kind))];
+	kindsTopArray.value = kinds.value.map((kind) => {
+		return goods.value.filter((good) => good.kind === kind).length * GOOD_DIV_HEIGHT;
+	});
+	activeKind.value = kinds.value[0];
 });
 </script>
