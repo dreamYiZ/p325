@@ -50,7 +50,7 @@
 import { onMounted, ref } from "vue";
 import "./index.less";
 
-const GOOD_DIV_HEIGHT = "70";
+const GOOD_DIV_HEIGHT = 80;
 const goods = ref();
 const kinds = ref();
 const toScrollViewId = ref();
@@ -71,6 +71,7 @@ const scrollGoods = (e) => {
 			if (scrollTop > totalTop + kindsTopArray.value[n]) {
 				totalTop += kindsTopArray.value[n];
 				n++;
+				continue;
 			} else {
 				break;
 			}
