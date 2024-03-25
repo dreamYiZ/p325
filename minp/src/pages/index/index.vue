@@ -38,6 +38,20 @@
 						<view class="name">{{ item.name }}</view>
 						<view class="price">{{ item.price }}</view>
 					</view>
+					<view class="taste">
+						<text
+							class="a-taste"
+							:class="{ 'active-taste': hasTaste(item, taste) }"
+							:onTap="
+								() => {
+									onTapTaste(item, taste);
+								}
+							"
+							v-for="(taste, index) in item.opts.split('，')"
+							:key="index"
+							>{{ taste }}</text
+						>
+					</view>
 					<view class="add-to-cart">
 						<view
 							v-if="item.count"
@@ -156,6 +170,37 @@ const reCalculateCart = async () => {
 
 const showCartDetail = () => {
 	isCartDetailShow.value = !isCartDetailShow.value;
+};
+
+const onTapTaste = (good, taste) => {
+	if (good.choice) {
+		const regex = new RegExp(taste, "g");
+		if (regex.test(good.choice)) {
+			good.choice = good.choice
+				.split("，")
+				.filter((i) => i !== taste)
+				.join("，");
+			console.log(`The taste ${taste} is in the choice.`);
+		} else {
+			good.choice = `${good.choice}，${taste}`;
+			console.log(`The taste ${taste} is not in the choice.`);
+		}
+	}
+
+	if (!good.choice) {
+		good.choice = taste;
+	}
+};
+
+const hasTaste = (good, taste) => {
+	if (good.choice) {
+		const regex = new RegExp(taste, "g");
+		return regex.test(good.choice);
+	}
+
+	if (!good.choice) {
+		return false;
+	}
 };
 
 onMounted(() => {
