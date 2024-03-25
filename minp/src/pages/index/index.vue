@@ -63,27 +63,26 @@
 				<view v-if="totalCartMoney" class="cart-total-money">{{ totalCartMoney }}</view>
 			</view>
 			<view>结算</view>
-
-			<view class="cart-detail-box">
-				<view class="cart-item">
-					<view class="cart-total-name">名称</view>
-					<view class="cart-total-price">价格</view>
-					<view class="cart-total-discount">优惠</view>
-					<view class="cart-total-count">数量</view>
-					<view class="cart-total-good-total">总计</view>
-				</view>
-				<scroll-view :scroll-y="true" style="max-height: 420px" @scroll="scrollMenu">
-					<view v-for="(good, index) in goodsCounted" :key="index" class="cart-item">
-						<view class="cart-total-name">{{ good.name }}</view>
-						<view class="cart-total-price">{{ good.price }}</view>
-						<view class="cart-total-discount">{{ good.discount }}</view>
-						<view class="cart-total-count">{{ good.count }}</view>
-						<view class="cart-total-good-total">{{
-							Math.floor((good.price - good.discount) * good.count)
-						}}</view>
-					</view>
-				</scroll-view>
+		</view>
+		<view class="cart-detail-box" :class="{ 'active-cart-detail': !isCartDetailShow }">
+			<view class="cart-item label">
+				<view class="cart-total-name">名称</view>
+				<view class="cart-total-price">价格</view>
+				<view class="cart-total-discount">优惠</view>
+				<view class="cart-total-count">数量</view>
+				<view class="cart-total-good-total">总计</view>
 			</view>
+			<scroll-view :scroll-y="true" style="max-height: 420px" @scroll="scrollMenu">
+				<view v-for="(good, index) in goodsCounted" :key="index" class="cart-item">
+					<view class="cart-total-name">{{ good.name }}</view>
+					<view class="cart-total-price">{{ good.price }}</view>
+					<view class="cart-total-discount">{{ good.discount }}</view>
+					<view class="cart-total-count">{{ good.count }}</view>
+					<view class="cart-total-good-total">{{
+						Math.floor((good.price - good.discount) * good.count)
+					}}</view>
+				</view>
+			</scroll-view>
 		</view>
 	</view>
 </template>
@@ -156,7 +155,7 @@ const reCalculateCart = async () => {
 };
 
 const showCartDetail = () => {
-	isCartDetailShow.value = true;
+	isCartDetailShow.value = !isCartDetailShow.value;
 };
 
 onMounted(() => {
