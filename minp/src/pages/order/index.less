@@ -1,0 +1,51 @@
+@color-money: #BB0000;
+
+.page {}
+
+.order-page {
+  padding: 20px 16px;
+
+  .order {
+    border: 1px solid rgba(0, 0, 0, .17);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+
+    .good {
+      display: flex;
+      margin-bottom: 12px;
+      display: flex;
+
+
+      .good-img {
+        width: 65px;
+        height: 65px;
+      }
+    }
+
+    .good-info {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding-left: 20px;
+      padding-right: 10px;
+
+      &.info-label {
+        padding-left: 60px;
+        box-sizing: border-box;
+      }
+    }
+
+    .total-sec {
+      display: flex;
+      justify-content: flex-end;
+
+      .money-total{
+        color: @color-money;
+      }
+      .total-r {
+        text-align: right;
+      }
+    }
+  }
+}
