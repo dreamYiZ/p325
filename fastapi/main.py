@@ -1,15 +1,30 @@
-from typing import Union
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.orm import Session
+from typing import List
+import crud
+import models
+import schemas
 
-from fastapi import FastAPI
+from database import SessionLocal, engine
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+@app.post("/goods/", response_model=schemas.GoodInDB)
+def create_good(good: schemas.GoodCreate, db: Session = Depends(get_db)):
+    return crud.create_good(db=db, good=good)
 
+@app.post("/goods/list", response_model=List[schemas.GoodInDB])
+def read_goods(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+    goods = crud.get_goods(db, skip=skip, limit=limit)
+    return goods
