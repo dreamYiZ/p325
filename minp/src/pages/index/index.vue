@@ -38,16 +38,71 @@
 						<view class="name">{{ item.name }}</view>
 						<view class="price">{{ item.price }}</view>
 					</view>
+					<view class="taste">
+						<text
+							class="a-taste"
+							:class="{ 'active-taste': hasTaste(item, taste) }"
+							:onTap="
+								() => {
+									onTapTaste(item, taste);
+								}
+							"
+							v-for="(taste, index) in item.opts.split('，')"
+							:key="index"
+							>{{ taste }}</text
+						>
+					</view>
+					<view class="add-to-cart">
+						<view
+							v-if="item.count"
+							:onTap="
+								() => {
+									item.count--;
+									reCalculateCart();
+								}
+							"
+							>减</view
+						>
+						<view v-if="item.count" class="count-number">{{ item.count }}</view>
+						<view :onTap="() => addToCart(item)">加</view>
+					</view>
 				</view>
 				<view class="padding-space"></view>
 				<view class="reach2bottom">~~~ 到底了 ~~~</view>
+			</scroll-view>
+		</view>
+		<view class="cart-total">
+			<view class="cart-l">
+				<view :onTap="showCartDetail">总</view>
+				<view v-if="totalCartMoney" class="cart-total-money">{{ totalCartMoney }}</view>
+			</view>
+			<view>结算</view>
+		</view>
+		<view class="cart-detail-box" :class="{ 'active-cart-detail': !isCartDetailShow }">
+			<view class="cart-item label">
+				<view class="cart-total-name">名称</view>
+				<view class="cart-total-price">价格</view>
+				<view class="cart-total-discount">优惠</view>
+				<view class="cart-total-count">数量</view>
+				<view class="cart-total-good-total">总计</view>
+			</view>
+			<scroll-view :scroll-y="true" style="max-height: 420px" @scroll="scrollMenu">
+				<view v-for="(good, index) in goodsCounted" :key="index" class="cart-item">
+					<view class="cart-total-name">{{ good.name }}</view>
+					<view class="cart-total-price">{{ good.price }}</view>
+					<view class="cart-total-discount">{{ good.discount }}</view>
+					<view class="cart-total-count">{{ good.count }}</view>
+					<view class="cart-total-good-total">{{
+						Math.floor((good.price - good.discount) * good.count)
+					}}</view>
+				</view>
 			</scroll-view>
 		</view>
 	</view>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, nextTick } from "vue";
 import "./index.less";
 
 const GOOD_DIV_HEIGHT = 80;
@@ -56,6 +111,10 @@ const kinds = ref();
 const toScrollViewId = ref();
 const kindsTopArray = ref();
 const activeKind = ref();
+
+const totalCartMoney = ref();
+const goodsCounted = ref();
+const isCartDetailShow = ref(false);
 
 const scrollMenu = (e) => {
 	console.log("scroll menu", e);
@@ -86,6 +145,62 @@ const onClickMenu = (e) => {
 	let scrollToElId = goods.value.find((good) => good.kind === e).id;
 	toScrollViewId.value = `scrollid${scrollToElId}`;
 	activeKind.value = e;
+};
+
+const addToCart = (item) => {
+	if (!item.count) {
+		item.count = 1;
+	}
+
+	if (item.count) {
+		item.count++;
+	}
+
+	reCalculateCart();
+};
+
+const reCalculateCart = async () => {
+	console.log("reCalculateCart");
+	goodsCounted.value = goods.value.filter((good) => good.count > 0);
+	totalCartMoney.value = goodsCounted.value.reduce((a, b) => {
+		let money = Math.floor((b.price - b.discount) * b.count);
+		return a + money;
+	}, 0);
+};
+
+const showCartDetail = () => {
+	isCartDetailShow.value = !isCartDetailShow.value;
+};
+
+const onTapTaste = (good, taste) => {
+	if (good.choice) {
+		const regex = new RegExp(taste, "g");
+		if (regex.test(good.choice)) {
+			good.choice = good.choice
+				.split("，")
+				.filter((i) => i !== taste)
+				.join("，");
+			console.log(`The taste ${taste} is in the choice.`);
+		} else {
+			good.choice = `${good.choice}，${taste}`;
+			console.log(`The taste ${taste} is not in the choice.`);
+		}
+	}
+
+	if (!good.choice) {
+		good.choice = taste;
+	}
+};
+
+const hasTaste = (good, taste) => {
+	if (good.choice) {
+		const regex = new RegExp(taste, "g");
+		return regex.test(good.choice);
+	}
+
+	if (!good.choice) {
+		return false;
+	}
 };
 
 onMounted(() => {
