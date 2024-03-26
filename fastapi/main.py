@@ -25,6 +25,16 @@ def create_good(good: schemas.GoodCreate, db: Session = Depends(get_db)):
 
 @app.post("/goods/list", response_model=List[schemas.GoodInDB])
 def read_goods(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-
     goods = crud.get_goods(db, skip=skip, limit=limit)
     return goods
+
+
+@app.post("/orders/", response_model=schemas.OrderInDB)
+def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
+    return crud.create_order(db=db, order=order)
+
+@app.post("/orders/list", response_model=List[schemas.OrderInDB])
+def read_orders(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    orders = crud.get_orders(db, skip=skip, limit=limit)
+    return orders
+
