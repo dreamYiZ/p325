@@ -38,7 +38,7 @@
 						<view class="name">{{ item.name }}</view>
 						<view class="price">{{ item.price }}</view>
 					</view>
-					<view class="taste">
+					<view class="taste" v-if="false">
 						<text
 							class="a-taste"
 							:class="{ 'active-taste': hasTaste(item, taste) }"

@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Json
 from typing import List
+from datetime import datetime
 
 class GoodBase(BaseModel):
     name: str
@@ -16,23 +17,17 @@ class GoodCreate(GoodBase):
 class GoodInDB(GoodBase):
     id: int
 
-class OrderItemBase(BaseModel):
-    good_id: int
-    count: int
-
-class OrderItemCreate(OrderItemBase):
-    pass
-
-class OrderItemInDB(OrderItemBase):
-    id: int
 
 class OrderBase(BaseModel):
     sn: str
     total: int
+    goods: Json
+    created_at: datetime
+    paid_at: datetime
+    payment_amount: float
 
 class OrderCreate(OrderBase):
-    items: List[OrderItemCreate]
+    pass
 
 class OrderInDB(OrderBase):
     id: int
-    items: List[OrderItemInDB]
